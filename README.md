@@ -11,6 +11,8 @@ using GenHTTP.Adapters.WiredIO;
 using GenHTTP.Modules.Functional;
 using Wired.IO.App;
 
+// GET http://localhost:5000/api/hello?a=World
+
 var api = Inline.Create()
                 .Get("hello", (string a) => $"Hello {a}!");
 
