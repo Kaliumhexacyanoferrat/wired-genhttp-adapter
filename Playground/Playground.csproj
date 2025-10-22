@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+
+        <TargetFramework>net9.0</TargetFramework>
+        <OutputType>Exe</OutputType>
+
+        <LangVersion>13.0</LangVersion>
+        <Nullable>enable</Nullable>
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+        <ImplicitUsings>enable</ImplicitUsings>
+
+    </PropertyGroup>
+
+    <ItemGroup>
+
+        <ProjectReference Include="..\Adapter\GenHTTP.Adapters.WiredIO.csproj"/>
+
+        <PackageReference Include="GenHTTP.Modules.Functional" Version="9.8.*" />
+
+        <PackageReference Include="GenHTTP.Modules.DirectoryBrowsing" Version="9.8.*" />
+
+    </ItemGroup>
+
+</Project>

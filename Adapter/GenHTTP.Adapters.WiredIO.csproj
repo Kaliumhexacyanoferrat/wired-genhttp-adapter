@@ -1,0 +1,53 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+
+        <TargetFramework>net9.0</TargetFramework>
+
+        <LangVersion>13.0</LangVersion>
+        <Nullable>enable</Nullable>
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+        <ImplicitUsings>enable</ImplicitUsings>
+
+        <AssemblyVersion>9.8.0.0</AssemblyVersion>
+        <FileVersion>9.8.0.0</FileVersion>
+        <Version>9.8.0</Version>
+
+        <Description>Adapter to run GenHTTP handlers within an Wired.IO app.</Description>
+        <PackageTags>Wired.IO Adapter GenHTTP</PackageTags>
+
+        <Authors>Andreas Nägeli</Authors>
+        <Company/>
+
+        <PackageProjectUrl>https://genhttp.org/</PackageProjectUrl>
+        <PackageLicenseFile>LICENSE</PackageLicenseFile>
+        <PackageIcon>icon.png</PackageIcon>
+
+        <PublishRepositoryUrl>true</PublishRepositoryUrl>
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <NoWarn>CS1591,CS1587,CS1572,CS1573</NoWarn>
+
+    </PropertyGroup>
+
+    <ItemGroup>
+
+        <PackageReference Include="Wired.IO" Version="9.5.3" />
+
+        <PackageReference Include="GenHTTP.Api" Version="9.8.*" />
+
+        <PackageReference Include="GenHTTP.Modules.IO" Version="9.8.*" />
+
+        <PackageReference Include="GenHTTP.Modules.ErrorHandling" Version="9.8.*" />
+
+        <PackageReference Include="GenHTTP.Modules.ClientCaching" Version="9.8.*" />
+
+        <PackageReference Include="GenHTTP.Modules.Compression" Version="9.8.*" />
+
+        <PackageReference Include="GenHTTP.Engine.Shared" Version="9.8.*" />
+
+    </ItemGroup>
+
+</Project>
