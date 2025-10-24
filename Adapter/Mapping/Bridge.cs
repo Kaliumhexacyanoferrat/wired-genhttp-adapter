@@ -1,5 +1,8 @@
-﻿using GenHTTP.Adapters.WiredIO.Server;
+﻿using System.IO.Pipelines;
+
+using GenHTTP.Adapters.WiredIO.Server;
 using GenHTTP.Adapters.WiredIO.Types;
+using GenHTTP.Adapters.WiredIO.Utils;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
@@ -13,6 +16,7 @@ namespace GenHTTP.Adapters.WiredIO.Mapping;
 
 public static class Bridge
 {
+    private const int BufferSize = 8192;
 
     public static async Task MapAsync(Http11ExpressContext context, Func<Http11ExpressContext, Task> next, IHandler handler, IServerCompanion? companion = null, string? registeredPath = null)
     {
@@ -86,14 +90,19 @@ public static class Bridge
 
         if (response.Content != null)
         {
-            target.Content(new MappedContent(response));
-
             target.Header("Content-Type", (response.ContentType?.Charset != null ? $"{response.ContentType?.RawType}; charset={response.ContentType?.Charset}" : response.ContentType?.RawType) ?? "application/octet-stream");
 
             if (response.ContentEncoding != null)
             {
                 target.Header("Content-Encoding", response.ContentEncoding);
             }
+
+            if (response.Content.Length == null)
+            {
+                target.Header("Transfer-Encoding", "chunked");
+            }
+
+            target.Content(CreateHandler(context.Writer, response.Content), response.ContentLength);
         }
     }
 
@@ -106,5 +115,27 @@ public static class Bridge
             request.Target.Advance();
         }
     }
+
+    private static readonly Func<PipeWriter, IResponseContent, Task> StaticHandler = static async (writer, content) =>
+    {
+        if (content.Length == null)
+        {
+            await using var stream = new ChunkedStream(writer.AsStream(leaveOpen: true));
+
+            await content.WriteAsync(stream, BufferSize);
+
+            await stream.FinishAsync();
+        }
+        else
+        {
+            await using var stream = writer.AsStream(leaveOpen: true);
+
+            await content.WriteAsync(stream, BufferSize);
+        }
+
+        await writer.FlushAsync();
+    };
+
+    private static Action CreateHandler(PipeWriter writer, IResponseContent content) => () => StaticHandler.Invoke(writer, content);
 
 }
