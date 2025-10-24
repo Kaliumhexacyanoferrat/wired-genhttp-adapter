@@ -1,7 +1,6 @@
 # Wired.IO - GenHTTP Adapter
 
-> [!IMPORTANT]
-> The adapter is still in an early development stage and will be released on nuget soon.
+[![nuget Package](https://img.shields.io/nuget/v/GenHTTP.Adapters.WiredIO.svg)](https://www.nuget.org/packages/GenHTTP.Adapters.WiredIO/)
 
 Allows to use modules provided by [GenHTTP](https://genhttp.org) within a
 [Wired.IO](https://github.com/MDA2AV/Wired.IO) application.
