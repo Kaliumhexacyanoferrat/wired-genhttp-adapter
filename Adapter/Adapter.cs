@@ -19,18 +19,29 @@ public static class Adapter
 
     // ToDo: IBaseRequest and IBaseResponse do not feature basic access (such as headers), so we cannot be generic here
 
-    public static Builder<WiredHttp11Express<Http11ExpressContext>, Http11ExpressContext> Map(this Builder<WiredHttp11Express<Http11ExpressContext>, Http11ExpressContext> builder, string path, IHandlerBuilder handler, IServerCompanion? companion = null)
+    public static Builder<WiredHttp11Express<Http11ExpressContext>, Http11ExpressContext> Map(
+        this Builder<WiredHttp11Express<Http11ExpressContext>, Http11ExpressContext> builder, 
+        string path, 
+        IHandlerBuilder handler, 
+        IServerCompanion? companion = null)
         => Map(builder, path, handler.Build(), companion);
 
-    public static Builder<WiredHttp11Express<Http11ExpressContext>, Http11ExpressContext> Map(this Builder<WiredHttp11Express<Http11ExpressContext>, Http11ExpressContext> builder, string path, IHandler handler, IServerCompanion? companion = null)
+    private static Builder<WiredHttp11Express<Http11ExpressContext>, Http11ExpressContext> Map(
+        this Builder<WiredHttp11Express<Http11ExpressContext>, Http11ExpressContext> builder, 
+        string path, 
+        IHandler handler, 
+        IServerCompanion? companion = null)
     {
-        builder.UseMiddleware(scope => async (c, n) => await Bridge.MapAsync(c, n, handler, companion: companion, registeredPath: path));
+        // TODO: This signature can be simplified with next Wired.IO release
+        builder.UseMiddleware(_ => async (ctx, nxt) 
+            => await Bridge.MapAsync(ctx, nxt, handler, companion: companion, registeredPath: path));
+        
         return builder;
     }
 
     /// <summary>
     /// Enables default features on the given handler. This should be used on the
-    /// outer-most handler only.
+    /// outermost handler only.
     /// </summary>
     /// <param name="builder">The handler to be configured</param>
     /// <param name="errorHandling">If enabled, any exception will be catched and converted into an error response</param>

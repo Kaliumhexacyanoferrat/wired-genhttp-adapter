@@ -14,7 +14,7 @@ using WR = Wired.IO.Protocol.Response;
 
 namespace GenHTTP.Adapters.WiredIO.Mapping;
 
-public static class Bridge
+public static class  Bridge
 {
     private const int BufferSize = 8192;
 
@@ -61,8 +61,14 @@ public static class Bridge
 
     private static void MapResponse(IResponse response, Http11ExpressContext context)
     {
-        var target = context.Respond();
+        context
+            .Respond()
+            .Status((WR.ResponseStatus)ResponseStatus.Ok)
+            .Content("Hello !"u8)
+            .Type("text/html"u8);
 
+        /*var target = context.Respond();
+        
         target.Status((WR.ResponseStatus)response.Status.RawStatus);
 
         foreach (var header in response.Headers)
@@ -103,7 +109,7 @@ public static class Bridge
             }
 
             target.Content(CreateHandler(context.Writer, response.Content), response.ContentLength);
-        }
+        }*/
     }
 
     private static void AdvanceTo(Request request, string registeredPath)
@@ -133,7 +139,7 @@ public static class Bridge
             await content.WriteAsync(stream, BufferSize);
         }
 
-        await writer.FlushAsync();
+        //await writer.FlushAsync();
     };
 
     private static Action CreateHandler(PipeWriter writer, IResponseContent content) => () => StaticHandler.Invoke(writer, content);

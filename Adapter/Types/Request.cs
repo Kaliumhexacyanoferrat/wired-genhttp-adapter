@@ -111,6 +111,15 @@ public sealed class Request : IRequest
         LocalClient = new ClientConnection(request);
 
         // todo: potential client certificate is not exposed by wired
+        // Taveira: wired hasn a SslServerAuthenticationOptions property
+        /*
+         * public SslServerAuthenticationOptions SslServerAuthenticationOptions { get; set; } =
+           new SslServerAuthenticationOptions
+           {
+               EnabledSslProtocols = SslProtocols.None
+           };
+         */
+        // which containss the certificate plus SslApplicationProtocol.Http11 for http level
         Client = _Forwardings.DetermineClient(null) ?? LocalClient;
     }
 
@@ -131,7 +140,9 @@ public sealed class Request : IRequest
     #region Functionality
 
     public IResponseBuilder Respond() => new ResponseBuilder().Status(ResponseStatus.Ok);
-
+    
+    // Taveira: Wired.IO deals with websockets on the endpoint definition level using websocket utilities to accept
+    // upgrade connection and send/receive frames
     public UpgradeInfo Upgrade() => throw new NotSupportedException("Web sockets are not supported by the Kestrel server implementation");
 
     #endregion

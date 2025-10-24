@@ -10,8 +10,18 @@
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
         <ImplicitUsings>enable</ImplicitUsings>
 
+        <IsTestAssetProject>true</IsTestAssetProject>
+        <ServerGarbageCollection>true</ServerGarbageCollection>
+        <TieredPGO>true</TieredPGO>
+
+        <RuntimeIdentifier>linux-x64</RuntimeIdentifier>
+
     </PropertyGroup>
 
+    <ItemGroup Condition="$(PublishAot) == 'true'">
+        <RuntimeHostConfigurationOption Include="System.Threading.ThreadPool.HillClimbing.Disable" Value="true" />
+    </ItemGroup>
+    
     <ItemGroup>
 
         <ProjectReference Include="..\Adapter\GenHTTP.Adapters.WiredIO.csproj"/>

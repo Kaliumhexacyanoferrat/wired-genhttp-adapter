@@ -13,9 +13,9 @@ var api = Inline.Create()
 var files = Listing.From(ResourceTree.FromDirectory("./"));
 
 var services = Layout.Create()
-                     .Add("api", api)
-                     .Add("files", files)
-                     .Defaults();
+    .Add("api", api)
+    .Add("files", files);
+                     //.Defaults();
 
 var builder = WiredApp.CreateExpressBuilder()
                       .Port(5000)
