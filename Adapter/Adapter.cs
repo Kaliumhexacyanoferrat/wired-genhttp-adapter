@@ -1,8 +1,9 @@
-﻿using GenHTTP.Adapters.WiredIO.Mapping;
+﻿using System.Runtime.CompilerServices;
+using GenHTTP.Adapters.WiredIO.Mapping;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
-
+using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.ClientCaching;
 using GenHTTP.Modules.Compression;
 using GenHTTP.Modules.ErrorHandling;
@@ -12,6 +13,8 @@ using Wired.IO.Builder;
 using Wired.IO.Http11Express;
 using Wired.IO.Http11Express.Context;
 
+using WR = Wired.IO.Protocol.Response;
+
 namespace GenHTTP.Adapters.WiredIO;
 
 public static class Adapter
@@ -19,15 +22,15 @@ public static class Adapter
 
     // ToDo: IBaseRequest and IBaseResponse do not feature basic access (such as headers), so we cannot be generic here
 
-    public static Builder<WiredHttp11Express<Http11ExpressContext>, Http11ExpressContext> Map(
-        this Builder<WiredHttp11Express<Http11ExpressContext>, Http11ExpressContext> builder, 
+    public static Builder<WiredHttp11Express, Http11ExpressContext> Map(
+        this Builder<WiredHttp11Express, Http11ExpressContext> builder, 
         string path, 
         IHandlerBuilder handler, 
         IServerCompanion? companion = null)
         => Map(builder, path, handler.Build(), companion);
 
-    private static Builder<WiredHttp11Express<Http11ExpressContext>, Http11ExpressContext> Map(
-        this Builder<WiredHttp11Express<Http11ExpressContext>, Http11ExpressContext> builder, 
+    private static Builder<WiredHttp11Express, Http11ExpressContext> Map(
+        this Builder<WiredHttp11Express, Http11ExpressContext> builder, 
         string path, 
         IHandler handler, 
         IServerCompanion? companion = null)

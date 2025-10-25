@@ -30,11 +30,13 @@
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <NoWarn>CS1591,CS1587,CS1572,CS1573</NoWarn>
 
+        <RuntimeIdentifier>linux-x64</RuntimeIdentifier>
+
     </PropertyGroup>
 
     <ItemGroup>
 
-        <PackageReference Include="Wired.IO" Version="9.5.3" />
+        <!--<PackageReference Include="Wired.IO" Version="9.5.3" />-->
 
         <PackageReference Include="GenHTTP.Api" Version="9.8.*" />
 
@@ -55,6 +57,10 @@
         <None Include="$(SolutionDir)\LICENSE" Pack="true" PackagePath="\"/>
         <None Include="$(SolutionDir)\Resources\icon.png" Pack="true" PackagePath="\"/>
 
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\Wired.IO\Wired.IO\Wired.IO.csproj" />
     </ItemGroup>
 
 </Project>
