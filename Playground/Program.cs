@@ -2,56 +2,53 @@
 using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.DirectoryBrowsing;
 using GenHTTP.Modules.Functional;
+using GenHTTP.Modules.Functional.Provider;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
+using GenHTTP.Modules.Layouting.Provider;
 using Microsoft.Extensions.DependencyInjection;
 using Wired.IO.App;
 
+// dotnet publish -c release -r linux-x64 --no-restore --self-contained
+
+// http://localhost:8080/genhttp/api/plaintext
+// http://localhost:8080/wiredio/api/plaintext
+
 internal class Program
 {
-    public class JsonMessage
-    {
-        public string message { get; set; } = null!;
-    }
-    
     public static async Task Main(string[] args)
     {
-        var api = Inline.Create()
-            .Get("plaintext", () => "Hello, World!")
-            .Get("json", () => new JsonMessage{ message = "Hello, World!" });
-
-        var files = Listing.From(ResourceTree.FromDirectory("./"));
-
-        var services = Layout.Create()
-            .Add("plaintext", Content.From(Resource.FromString("Hello World!")));
-            //.Add("/", api);
-            //.Add("files", files);
-        //.Defaults();
-
         var builder = WiredApp.CreateExpressBuilder()
             .Port(8080)
-            /*.MapGet("/plaintext", _ => ctx =>
+            .NoScopedEndpoints() // Do not use AsyncServiceScope for each pipeline call
+            .MapGenHttp("/genhttp/*", CreateLayoutBuilder());
+            
+        _ = builder
+            .MapGroup("/wiredio")
+            .MapGroup("/api")
+            .MapGet("/plaintext", ctx =>
             {
                 ctx
                     .Respond()
                     .Status(Wired.IO.Protocol.Response.ResponseStatus.Ok)
-                    .Type("text/plain"u8)
-                    .Content("Hello World!"u8);
-            })*/
-            .Map("/", services);
-
-        builder.Services.AddScoped<Service>();
-
-        var app = builder.Build();
-
-        IServiceProvider sp = app.Services;
-
-        await app.RunAsync();
+                    .Type("plain/text"u8)
+                    .Content("Hello, World!"u8);
+            });
+        
+        await builder
+            .Build()
+            .RunAsync();
     }
-}
 
-
-public class Service
-{
-    public string Handle() => "Service Handled";
+    private static LayoutBuilder CreateLayoutBuilder() => 
+        Layout
+            .Create()
+            .Add("plaintext", Content.From(Resource.FromString("Hello World!")))
+            .Add("/api", CreateApi())
+            .Add("files", Listing.From(ResourceTree.FromDirectory("./")));
+    
+    private static InlineBuilder CreateApi() => 
+        Inline
+            .Create() 
+            .Get("plaintext", () => "Hello, World!");
 }

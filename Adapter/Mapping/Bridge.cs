@@ -19,27 +19,9 @@ namespace GenHTTP.Adapters.WiredIO.Mapping;
 public static class  Bridge
 {
     private const int BufferSize = 8192;
-
-    public static async Task MapAsync(Http11ExpressContext context, Func<Http11ExpressContext, Task> next, IHandler handler, IServerCompanion? companion = null, string? registeredPath = null)
+    
+    public static async Task MapAsync(Http11ExpressContext context, IHandler handler, IServerCompanion? companion = null, string? registeredPath = null)
     {
-        /*
-        if ((registeredPath == null))
-        {
-            await Task.Delay(1);
-        }
-        context
-            .Respond()
-            .Status((WR.ResponseStatus)ResponseStatus.Ok)
-            .Content("Hello, World!"u8)
-            .Type("text/html"u8);
-        */
-        
-        if ((registeredPath != null) && !context.Request.Route.StartsWith(registeredPath))
-        {
-            await next(context);
-            return;
-        }
-        
         // todo: can we cache this somewhere?
         var server = new ImplicitServer(handler, companion);
 
@@ -59,10 +41,6 @@ public static class  Bridge
                 MapResponse(response, context);
 
                 server.Companion?.OnRequestHandled(request, response);
-            }
-            else
-            {
-                await next(context);
             }
         }
         catch (Exception e)
@@ -116,10 +94,8 @@ public static class  Bridge
                 target.Header("Transfer-Encoding", "chunked");
             }
 
-            target.Type("text/html"u8);
+            //target.Type("text/html"u8);
             target.Content(CreateHandler(context.Writer, response.Content), response.ContentLength);
-            //target.Content("Hello, World!"u8)
-            //      .Type("text/html"u8);
         }
     }
 
@@ -135,11 +111,10 @@ public static class  Bridge
     
     private static readonly Func<PipeWriter, IResponseContent, Task> StaticHandler =  async (writer, content) =>
     {
-        //writer.Write("Hello, World!"u8);
-        
         if (content.Length == null)
         {
-            await using var stream = new ChunkedStream(writer.AsStream(leaveOpen: true));
+            //await using var stream = new ChunkedStream(writer.AsStream(leaveOpen: true));
+            await using var stream = new ChunkedStream(writer.AsWiredStream());
 
             await content.WriteAsync(stream, BufferSize);
 
@@ -147,77 +122,12 @@ public static class  Bridge
         }
         else
         {
-            //await using var stream = writer.AsStream(leaveOpen: true);
-            //await content.WriteAsync(stream, BufferSize);
-            
             await using var stream = writer.AsWiredStream();
+            
             await content.WriteAsync(stream, BufferSize);
         }
-
-        //await writer.FlushAsync();
     };
     
-    private static Func<Task> CreateHandler(PipeWriter writer, IResponseContent content) => () => StaticHandler(writer, content);
-
-}
-
-public sealed class WiredStream : Stream
-{
-    private readonly PipeWriter _writer;
-    private readonly bool _completeOnDispose;
-    private bool _disposed;
-
-    public WiredStream(PipeWriter writer, bool completeOnDispose = false)
-    {
-        _writer = writer ?? throw new ArgumentNullException(nameof(writer));
-        _completeOnDispose = completeOnDispose; // default: leave writer open
-    }
-
-    public override bool CanRead => false;
-    public override bool CanSeek => false;
-    public override bool CanWrite => true;
-    public override long Length => throw new NotSupportedException();
-    public override long Position { get => throw new NotSupportedException(); set => throw new NotSupportedException(); }
-
-    public override void Write(byte[] buffer, int offset, int count)
-        => _writer.Write(buffer.AsSpan(offset, count));
-
-    public override ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
-    {
-        _writer.Write(buffer.Span);          // no implicit flush
-        return ValueTask.CompletedTask;
-    }
-
-    public override void Flush()
-        => _writer.FlushAsync().AsTask().GetAwaiter().GetResult();
-
-    public override Task FlushAsync(CancellationToken cancellationToken)
-        => _writer.FlushAsync(cancellationToken).AsTask();
-
-    protected override void Dispose(bool disposing)
-    {
-        if (_disposed || !disposing) return;
-        if (_completeOnDispose) _writer.Complete();  // otherwise leave open, no flush
-        _disposed = true;
-        base.Dispose(disposing);
-    }
-
-    public override async ValueTask DisposeAsync()
-    {
-        if (!_disposed && _completeOnDispose)
-            await _writer.CompleteAsync().ConfigureAwait(false);
-        _disposed = true;
-        await base.DisposeAsync().ConfigureAwait(false);
-    }
-
-    // Unsupported
-    public override int Read(byte[] buffer, int offset, int count) => throw new NotSupportedException();
-    public override long Seek(long offset, SeekOrigin origin) => throw new NotSupportedException();
-    public override void SetLength(long value) => throw new NotSupportedException();
-}
-
-public static class PipeWriterExtensions
-{
-    public static WiredStream AsWiredStream(this PipeWriter writer, bool completeOnDispose = false)
-        => new WiredStream(writer, completeOnDispose);
+    private static Func<Task> CreateHandler(PipeWriter writer, IResponseContent content) => 
+        () => StaticHandler(writer, content);
 }

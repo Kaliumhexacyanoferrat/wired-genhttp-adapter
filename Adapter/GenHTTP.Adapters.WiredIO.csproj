@@ -36,7 +36,7 @@
 
     <ItemGroup>
 
-        <!--<PackageReference Include="Wired.IO" Version="9.5.3" />-->
+        <PackageReference Include="Wired.IO" Version="9.5.10" />
 
         <PackageReference Include="GenHTTP.Api" Version="9.8.*" />
 
@@ -57,10 +57,6 @@
         <None Include="$(SolutionDir)\LICENSE" Pack="true" PackagePath="\"/>
         <None Include="$(SolutionDir)\Resources\icon.png" Pack="true" PackagePath="\"/>
 
-    </ItemGroup>
-
-    <ItemGroup>
-      <ProjectReference Include="..\..\Wired.IO\Wired.IO\Wired.IO.csproj" />
     </ItemGroup>
 
 </Project>

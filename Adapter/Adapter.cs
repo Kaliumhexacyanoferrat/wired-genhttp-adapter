@@ -1,33 +1,30 @@
-﻿using System.Runtime.CompilerServices;
-using GenHTTP.Adapters.WiredIO.Mapping;
+﻿using GenHTTP.Adapters.WiredIO.Mapping;
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
-using GenHTTP.Api.Protocol;
 using GenHTTP.Modules.ClientCaching;
 using GenHTTP.Modules.Compression;
 using GenHTTP.Modules.ErrorHandling;
 using GenHTTP.Modules.IO;
 
+using Wired.IO.App;
 using Wired.IO.Builder;
 using Wired.IO.Http11Express;
 using Wired.IO.Http11Express.Context;
-
-using WR = Wired.IO.Protocol.Response;
 
 namespace GenHTTP.Adapters.WiredIO;
 
 public static class Adapter
 {
-
     // ToDo: IBaseRequest and IBaseResponse do not feature basic access (such as headers), so we cannot be generic here
-
-    public static Builder<WiredHttp11Express, Http11ExpressContext> Map(
+    public static Builder<WiredHttp11Express, Http11ExpressContext> MapGenHttp(
         this Builder<WiredHttp11Express, Http11ExpressContext> builder, 
         string path, 
         IHandlerBuilder handler, 
-        IServerCompanion? companion = null)
+        IServerCompanion? companion = null) 
         => Map(builder, path, handler.Build(), companion);
+    
+    private static int _prefixLength;
 
     private static Builder<WiredHttp11Express, Http11ExpressContext> Map(
         this Builder<WiredHttp11Express, Http11ExpressContext> builder, 
@@ -35,9 +32,23 @@ public static class Adapter
         IHandler handler, 
         IServerCompanion? companion = null)
     {
-        // TODO: This signature can be simplified with next Wired.IO release
-        builder.UseMiddleware(_ => async (ctx, nxt) 
-            => await Bridge.MapAsync(ctx, nxt, handler, companion: companion, registeredPath: path));
+        _prefixLength =  path.Replace("*", string.Empty).Length;
+        
+        // Creates a unique pipeline (middleware + endpoint) that is completely self-sustained and independent
+        builder.AddManualPipeline(
+            path, // Path for Wired.IO
+            [HttpConstants.Get, HttpConstants.Post, HttpConstants.Delete, HttpConstants.Put, // Support all http methods
+                HttpConstants.Patch, HttpConstants.Head, HttpConstants.Trace, HttpConstants.Connect],
+            async ctx =>
+            {
+                await Bridge.MapAsync(
+                    ctx, 
+                    handler, 
+                    companion: companion, 
+                    registeredPath: ctx.Request.Route[_prefixLength..]);
+            }, 
+            // Middlewares, in this case empty as GenHttp already implements this internally (ConcernBuilder)
+            []);
         
         return builder;
     }

@@ -111,7 +111,7 @@ public sealed class Request : IRequest
         LocalClient = new ClientConnection(request);
 
         // todo: potential client certificate is not exposed by wired
-        // Taveira: wired hasn a SslServerAuthenticationOptions property
+        // Taveira: wired has a SslServerAuthenticationOptions property
         /*
          * public SslServerAuthenticationOptions SslServerAuthenticationOptions { get; set; } =
            new SslServerAuthenticationOptions
@@ -119,7 +119,7 @@ public sealed class Request : IRequest
                EnabledSslProtocols = SslProtocols.None
            };
          */
-        // which containss the certificate plus SslApplicationProtocol.Http11 for http level
+        // which contains the certificate plus SslApplicationProtocol.Http11 for http level
         Client = _Forwardings.DetermineClient(null) ?? LocalClient;
     }
 
