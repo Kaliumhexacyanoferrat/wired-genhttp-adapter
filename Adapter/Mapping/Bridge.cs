@@ -29,10 +29,10 @@ public static class  Bridge
         {
             using var request = new Request(server, context.Request);
 
-            if (registeredPath != null)
+            /*if (registeredPath != null)
             {
                 AdvanceTo(request, registeredPath);
-            }
+            }*/
             
             using var response = await handler.HandleAsync(request);
 

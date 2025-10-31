@@ -19,7 +19,7 @@ public static class Adapter
     // ToDo: IBaseRequest and IBaseResponse do not feature basic access (such as headers), so we cannot be generic here
     public static Builder<WiredHttp11Express, Http11ExpressContext> MapGenHttp(
         this Builder<WiredHttp11Express, Http11ExpressContext> builder, 
-        string path, 
+        string path,
         IHandlerBuilder handler, 
         IServerCompanion? companion = null) 
         => Map(builder, path, handler.Build(), companion);
