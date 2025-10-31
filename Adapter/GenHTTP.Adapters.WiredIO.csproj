@@ -16,10 +16,10 @@
         <Description>Adapter to run GenHTTP handlers within an Wired.IO app.</Description>
         <PackageTags>Wired.IO Adapter GenHTTP</PackageTags>
 
-        <Authors>Andreas Nägeli</Authors>
+        <Authors>Andreas Nägeli, Diogo Martins</Authors>
         <Company/>
 
-        <PackageProjectUrl>https://genhttp.org/</PackageProjectUrl>
+        <PackageProjectUrl>https://github.com/Kaliumhexacyanoferrat/wired-genhttp-adapter</PackageProjectUrl>
         <PackageLicenseFile>LICENSE</PackageLicenseFile>
         <PackageIcon>icon.png</PackageIcon>
 
@@ -34,7 +34,7 @@
 
     <ItemGroup>
 
-        <PackageReference Include="Wired.IO" Version="9.5.3" />
+        <PackageReference Include="Wired.IO" Version="9.5.10" />
 
         <PackageReference Include="GenHTTP.Api" Version="9.8.*" />
 

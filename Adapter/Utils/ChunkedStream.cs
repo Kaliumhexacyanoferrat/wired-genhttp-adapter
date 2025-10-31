@@ -13,7 +13,7 @@ namespace GenHTTP.Adapters.WiredIO.Utils;
 /// </remarks>
 public sealed class ChunkedStream : Stream
 {
-    private static readonly string NL = "\r\n";
+    private static readonly string Nl = "\r\n";
 
     #region Initialization
 
@@ -59,7 +59,7 @@ public sealed class ChunkedStream : Stream
 
             Target.Write(buffer, offset, count);
 
-            NL.Write(Target);
+            Nl.Write(Target);
         }
     }
 
@@ -71,7 +71,7 @@ public sealed class ChunkedStream : Stream
 
             await Target.WriteAsync(buffer.AsMemory(offset, count), cancellationToken);
 
-            await WriteAsync(NL);
+            await WriteAsync(Nl);
         }
     }
 
@@ -83,7 +83,7 @@ public sealed class ChunkedStream : Stream
 
             await Target.WriteAsync(buffer, cancellationToken);
 
-            await WriteAsync(NL);
+            await WriteAsync(Nl);
         }
     }
 

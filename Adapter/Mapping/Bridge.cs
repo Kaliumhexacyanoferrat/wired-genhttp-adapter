@@ -14,30 +14,24 @@ using WR = Wired.IO.Protocol.Response;
 
 namespace GenHTTP.Adapters.WiredIO.Mapping;
 
-public static class Bridge
+public static class  Bridge
 {
     private const int BufferSize = 8192;
-
-    public static async Task MapAsync(Http11ExpressContext context, Func<Http11ExpressContext, Task> next, IHandler handler, IServerCompanion? companion = null, string? registeredPath = null)
+    
+    public static async Task MapAsync(Http11ExpressContext context, IHandler handler, IServerCompanion? companion = null, string? registeredPath = null)
     {
-        if ((registeredPath != null) && !context.Request.Route.StartsWith(registeredPath))
-        {
-            await next(context);
-            return;
-        }
-
         // todo: can we cache this somewhere?
-        var server = new ImplicitServer(handler, companion);
+        var server = new ImplicitServer(context, handler, companion);
 
         try
         {
             using var request = new Request(server, context.Request);
 
-            if (registeredPath != null)
+            if (!string.IsNullOrEmpty(registeredPath))
             {
                 AdvanceTo(request, registeredPath);
             }
-
+            
             using var response = await handler.HandleAsync(request);
 
             if (response != null)
@@ -45,10 +39,6 @@ public static class Bridge
                 MapResponse(response, context);
 
                 server.Companion?.OnRequestHandled(request, response);
-            }
-            else
-            {
-                await next(context);
             }
         }
         catch (Exception e)
@@ -62,7 +52,7 @@ public static class Bridge
     private static void MapResponse(IResponse response, Http11ExpressContext context)
     {
         var target = context.Respond();
-
+        
         target.Status((WR.ResponseStatus)response.Status.RawStatus);
 
         foreach (var header in response.Headers)
@@ -115,12 +105,12 @@ public static class Bridge
             request.Target.Advance();
         }
     }
-
-    private static readonly Func<PipeWriter, IResponseContent, Task> StaticHandler = static async (writer, content) =>
+    
+    private static readonly Func<PipeWriter, IResponseContent, Task> StaticHandler =  async (writer, content) =>
     {
         if (content.Length == null)
         {
-            await using var stream = new ChunkedStream(writer.AsStream(leaveOpen: true));
+            await using var stream = new ChunkedStream(writer.AsWiredStream());
 
             await content.WriteAsync(stream, BufferSize);
 
@@ -128,14 +118,13 @@ public static class Bridge
         }
         else
         {
-            await using var stream = writer.AsStream(leaveOpen: true);
-
+            await using var stream = writer.AsWiredStream();
+            
             await content.WriteAsync(stream, BufferSize);
         }
-
-        await writer.FlushAsync();
     };
-
-    private static Action CreateHandler(PipeWriter writer, IResponseContent content) => () => StaticHandler.Invoke(writer, content);
-
+    
+    private static Func<Task> CreateHandler(PipeWriter writer, IResponseContent content) => 
+        () => StaticHandler(writer, content);
+    
 }

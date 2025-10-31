@@ -10,26 +10,26 @@ namespace GenHTTP.Adapters.WiredIO.Types;
 
 public sealed class Request : IRequest
 {
-    private RequestProperties? _Properties;
+    private RequestProperties? _properties;
 
-    private Query? _Query;
+    private Query? _query;
 
-    private ICookieCollection? _Cookies;
+    private ICookieCollection? _cookies;
 
-    private readonly ForwardingCollection _Forwardings = new();
+    private readonly ForwardingCollection _forwardings = new();
 
-    private Headers? _Headers;
+    private Headers? _headers;
 
     #region Get-/Setters
 
     public IRequestProperties Properties
     {
-        get { return _Properties ??= new RequestProperties(); }
+        get { return _properties ??= new RequestProperties(); }
     }
 
     public IServer Server { get; }
 
-    public IEndPoint EndPoint => throw new InvalidOperationException("EndPoint is not available as it is managed by WiredIO");
+    public IEndPoint EndPoint => Server.EndPoints[0];
 
     public IClientConnection Client { get; }
 
@@ -51,19 +51,19 @@ public sealed class Request : IRequest
 
     public IRequestQuery Query
     {
-        get { return _Query ??= new Query(InnerRequest); }
+        get { return _query ??= new Query(InnerRequest); }
     }
 
     public ICookieCollection Cookies
     {
-        get { return _Cookies ??= FetchCookies(InnerRequest); }
+        get { return _cookies ??= FetchCookies(InnerRequest); }
     }
 
-    public IForwardingCollection Forwardings => _Forwardings;
+    public IForwardingCollection Forwardings => _forwardings;
 
     public IHeaderCollection Headers
     {
-        get { return _Headers ??= new Headers(InnerRequest); }
+        get { return _headers ??= new Headers(InnerRequest); }
     }
 
     // todo: this is quite inefficient
@@ -101,17 +101,26 @@ public sealed class Request : IRequest
 
         if (request.Headers.TryGetValue("forwarded", out var entry))
         {
-            _Forwardings.Add(entry);
+            _forwardings.Add(entry);
         }
         else
         {
-            _Forwardings.TryAddLegacy(Headers);
+            _forwardings.TryAddLegacy(Headers);
         }
 
         LocalClient = new ClientConnection(request);
 
         // todo: potential client certificate is not exposed by wired
-        Client = _Forwardings.DetermineClient(null) ?? LocalClient;
+        // Taveira: wired has a SslServerAuthenticationOptions property
+        /*
+         * public SslServerAuthenticationOptions SslServerAuthenticationOptions { get; set; } =
+           new SslServerAuthenticationOptions
+           {
+               EnabledSslProtocols = SslProtocols.None
+           };
+         */
+        // which contains the certificate plus SslApplicationProtocol.Http11 for http level
+        Client = _forwardings.DetermineClient(null) ?? LocalClient;
     }
 
     private CookieCollection FetchCookies(IExpressRequest request)
@@ -131,22 +140,22 @@ public sealed class Request : IRequest
     #region Functionality
 
     public IResponseBuilder Respond() => new ResponseBuilder().Status(ResponseStatus.Ok);
-
-    public UpgradeInfo Upgrade() => throw new NotSupportedException("Web sockets are not supported by the Kestrel server implementation");
+    
+    public UpgradeInfo Upgrade() => throw new NotSupportedException("Upgrading is not supported by this adapter. Please use the native websocket capabilities of Wired.IO.");
 
     #endregion
 
     #region Lifecycle
 
-    private bool _Disposed;
+    private bool _disposed;
 
     public void Dispose()
     {
-        if (!_Disposed)
+        if (!_disposed)
         {
-            _Properties?.Dispose();
+            _properties?.Dispose();
 
-            _Disposed = true;
+            _disposed = true;
         }
     }
 

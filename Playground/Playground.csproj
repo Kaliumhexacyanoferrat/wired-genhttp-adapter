@@ -10,16 +10,24 @@
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
         <ImplicitUsings>enable</ImplicitUsings>
 
+        <IsTestAssetProject>true</IsTestAssetProject>
+        <ServerGarbageCollection>true</ServerGarbageCollection>
+        <TieredPGO>true</TieredPGO>
+
     </PropertyGroup>
 
     <ItemGroup>
-
+        <RuntimeHostConfigurationOption Include="System.GC.DynamicAdaptationMode" Value="0" />
+        <RuntimeHostConfigurationOption Include="System.Runtime.ReadyToRun" Value="0" />
+        <RuntimeHostConfigurationOption Include="System.Threading.ThreadPool.HillClimbing.Disable" Value="1" />
+    </ItemGroup>
+    
+    <ItemGroup>
         <ProjectReference Include="..\Adapter\GenHTTP.Adapters.WiredIO.csproj"/>
-
         <PackageReference Include="GenHTTP.Modules.Functional" Version="9.8.*" />
-
         <PackageReference Include="GenHTTP.Modules.DirectoryBrowsing" Version="9.8.*" />
-
+        <PackageReference Include="GenHTTP.Modules.OpenApi" Version="9.8.*" />
+        <PackageReference Include="GenHTTP.Modules.ApiBrowsing" Version="9.8.*" />
     </ItemGroup>
 
 </Project>

@@ -2,12 +2,12 @@
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
-
 using GenHTTP.Modules.ClientCaching;
 using GenHTTP.Modules.Compression;
 using GenHTTP.Modules.ErrorHandling;
 using GenHTTP.Modules.IO;
 
+using Wired.IO.App;
 using Wired.IO.Builder;
 using Wired.IO.Http11Express;
 using Wired.IO.Http11Express.Context;
@@ -16,21 +16,43 @@ namespace GenHTTP.Adapters.WiredIO;
 
 public static class Adapter
 {
-
-    // ToDo: IBaseRequest and IBaseResponse do not feature basic access (such as headers), so we cannot be generic here
-
-    public static Builder<WiredHttp11Express<Http11ExpressContext>, Http11ExpressContext> Map(this Builder<WiredHttp11Express<Http11ExpressContext>, Http11ExpressContext> builder, string path, IHandlerBuilder handler, IServerCompanion? companion = null)
+    
+    public static Builder<WiredHttp11Express, Http11ExpressContext> MapGenHttp(
+        this Builder<WiredHttp11Express, Http11ExpressContext> builder, 
+        string path,
+        IHandlerBuilder handler, 
+        IServerCompanion? companion = null) 
         => Map(builder, path, handler.Build(), companion);
+    
 
-    public static Builder<WiredHttp11Express<Http11ExpressContext>, Http11ExpressContext> Map(this Builder<WiredHttp11Express<Http11ExpressContext>, Http11ExpressContext> builder, string path, IHandler handler, IServerCompanion? companion = null)
+    private static Builder<WiredHttp11Express, Http11ExpressContext> Map(
+        this Builder<WiredHttp11Express, Http11ExpressContext> builder, 
+        string path, 
+        IHandler handler, 
+        IServerCompanion? companion = null)
     {
-        builder.UseMiddleware(scope => async (c, n) => await Bridge.MapAsync(c, n, handler, companion: companion, registeredPath: path));
+        // Creates a unique pipeline (middleware + endpoint) that is completely self-sustained and independent
+        builder.AddManualPipeline(
+            path, // Path for Wired.IO
+            [HttpConstants.Get, HttpConstants.Post, HttpConstants.Delete, HttpConstants.Put, // Support all http methods
+                HttpConstants.Patch, HttpConstants.Head, HttpConstants.Trace, HttpConstants.Connect],
+            async ctx =>
+            {
+                await Bridge.MapAsync(
+                    ctx, 
+                    handler, 
+                    companion: companion, 
+                    registeredPath: path.Replace("*", string.Empty));
+            }, 
+            // Middlewares, in this case empty as GenHttp already implements this internally (ConcernBuilder)
+            []);
+        
         return builder;
     }
 
     /// <summary>
     /// Enables default features on the given handler. This should be used on the
-    /// outer-most handler only.
+    /// outermost handler only.
     /// </summary>
     /// <param name="builder">The handler to be configured</param>
     /// <param name="errorHandling">If enabled, any exception will be catched and converted into an error response</param>
