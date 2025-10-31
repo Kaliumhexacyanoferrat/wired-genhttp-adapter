@@ -16,7 +16,9 @@ namespace GenHTTP.Adapters.WiredIO;
 
 public static class Adapter
 {
-    // ToDo: IBaseRequest and IBaseResponse do not feature basic access (such as headers), so we cannot be generic here
+    
+    private static int _prefixLength;
+    
     public static Builder<WiredHttp11Express, Http11ExpressContext> MapGenHttp(
         this Builder<WiredHttp11Express, Http11ExpressContext> builder, 
         string path,
@@ -24,7 +26,6 @@ public static class Adapter
         IServerCompanion? companion = null) 
         => Map(builder, path, handler.Build(), companion);
     
-    private static int _prefixLength;
 
     private static Builder<WiredHttp11Express, Http11ExpressContext> Map(
         this Builder<WiredHttp11Express, Http11ExpressContext> builder, 
@@ -32,7 +33,9 @@ public static class Adapter
         IHandler handler, 
         IServerCompanion? companion = null)
     {
-        _prefixLength =  path.Replace("*", string.Empty).Length;
+        var pathWithoutWildcard = path.Replace("*", string.Empty);
+        
+        _prefixLength = pathWithoutWildcard.Length;
         
         // Creates a unique pipeline (middleware + endpoint) that is completely self-sustained and independent
         builder.AddManualPipeline(
@@ -45,7 +48,7 @@ public static class Adapter
                     ctx, 
                     handler, 
                     companion: companion, 
-                    registeredPath: ctx.Request.Route[_prefixLength..]);
+                    registeredPath: pathWithoutWildcard);
             }, 
             // Middlewares, in this case empty as GenHttp already implements this internally (ConcernBuilder)
             []);

@@ -21,7 +21,7 @@ internal class Program
         var builder = WiredApp.CreateExpressBuilder()
             .Port(8080)
             .NoScopedEndpoints() // Do not use AsyncServiceScope for each pipeline call
-            .MapGenHttp("/*", CreateLayoutBuilder());
+            .MapGenHttp("/genhttp/*", CreateLayoutBuilder());
             
         _ = builder
             .MapGroup("/wiredio")
