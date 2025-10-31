@@ -9,9 +9,9 @@
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
         <ImplicitUsings>enable</ImplicitUsings>
 
-        <AssemblyVersion>9.8.0.0</AssemblyVersion>
-        <FileVersion>9.8.0.0</FileVersion>
-        <Version>9.8.0</Version>
+        <AssemblyVersion>9.8.1.0</AssemblyVersion>
+        <FileVersion>9.8.1.0</FileVersion>
+        <Version>9.8.1</Version>
 
         <Description>Adapter to run GenHTTP handlers within an Wired.IO app.</Description>
         <PackageTags>Wired.IO Adapter GenHTTP</PackageTags>
@@ -21,6 +21,7 @@
 
         <PackageProjectUrl>https://github.com/Kaliumhexacyanoferrat/wired-genhttp-adapter</PackageProjectUrl>
         <PackageLicenseFile>LICENSE</PackageLicenseFile>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
         <PackageIcon>icon.png</PackageIcon>
 
         <PublishRepositoryUrl>true</PublishRepositoryUrl>
@@ -34,7 +35,7 @@
 
     <ItemGroup>
 
-        <PackageReference Include="Wired.IO" Version="9.5.10" />
+        <PackageReference Include="Wired.IO" Version="9.5.11" />
 
         <PackageReference Include="GenHTTP.Api" Version="9.8.*" />
 
@@ -53,6 +54,7 @@
     <ItemGroup>
 
         <None Include="$(SolutionDir)\LICENSE" Pack="true" PackagePath="\"/>
+        <None Include="$(SolutionDir)\README.md" Pack="true" PackagePath="\"/>
         <None Include="$(SolutionDir)\Resources\icon.png" Pack="true" PackagePath="\"/>
 
     </ItemGroup>

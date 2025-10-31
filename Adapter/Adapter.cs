@@ -2,6 +2,7 @@
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
+
 using GenHTTP.Modules.ClientCaching;
 using GenHTTP.Modules.Compression;
 using GenHTTP.Modules.ErrorHandling;
@@ -32,6 +33,8 @@ public static class Adapter
         IServerCompanion? companion = null)
     {
         // Creates a unique pipeline (middleware + endpoint) that is completely self-sustained and independent
+        var app = builder.App;
+        
         builder.AddManualPipeline(
             path, // Path for Wired.IO
             [HttpConstants.Get, HttpConstants.Post, HttpConstants.Delete, HttpConstants.Put, // Support all http methods
@@ -39,6 +42,7 @@ public static class Adapter
             async ctx =>
             {
                 await Bridge.MapAsync(
+                    app,
                     ctx, 
                     handler, 
                     companion: companion, 

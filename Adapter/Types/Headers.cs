@@ -27,8 +27,8 @@ public sealed class Headers : IHeaderCollection
         return false;
     }
 
-    public string this[string key] => ContainsKey(key) ? Request.Headers[key] : string.Empty;
-
+    public string this[string key] => Request.Headers.GetValueOrDefault(key) ?? string.Empty;
+    
     public IEnumerable<string> Keys => Request.Headers.Keys;
 
     public IEnumerable<string> Values

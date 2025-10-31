@@ -1,4 +1,5 @@
-﻿using System.IO.Pipelines;
+﻿using System.Collections.Concurrent;
+using System.IO.Pipelines;
 
 using GenHTTP.Adapters.WiredIO.Server;
 using GenHTTP.Adapters.WiredIO.Types;
@@ -8,6 +9,7 @@ using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
 
+using Wired.IO.App;
 using Wired.IO.Http11Express.Context;
 
 using WR = Wired.IO.Protocol.Response;
@@ -17,11 +19,12 @@ namespace GenHTTP.Adapters.WiredIO.Mapping;
 public static class  Bridge
 {
     private const int BufferSize = 8192;
+
+    private static readonly ConcurrentDictionary<string, ImplicitServer> ServerCache = [];
     
-    public static async Task MapAsync(Http11ExpressContext context, IHandler handler, IServerCompanion? companion = null, string? registeredPath = null)
+    public static async Task MapAsync(WiredApp<Http11ExpressContext> app, Http11ExpressContext context, IHandler handler, IServerCompanion? companion = null, string? registeredPath = null)
     {
-        // todo: can we cache this somewhere?
-        var server = new ImplicitServer(context, handler, companion);
+        var server =ServerCache.GetOrAdd(registeredPath ?? "/", key => new ImplicitServer(app, handler, companion));
 
         try
         {

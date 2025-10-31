@@ -2,6 +2,8 @@
 
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
+
+using Wired.IO.App;
 using Wired.IO.Http11Express.Context;
 
 namespace GenHTTP.Adapters.WiredIO.Server;
@@ -35,14 +37,14 @@ public sealed class ImplicitServer : IServer
 
     #region Initialization
 
-    public ImplicitServer(Http11ExpressContext context, IHandler handler, IServerCompanion? companion)
+    public ImplicitServer(WiredApp<Http11ExpressContext> app, IHandler handler, IServerCompanion? companion)
     {
         Handler = handler;
         Companion = companion;
 
         EndPoints = new EndpointCollection
         {
-            new ImplicitEndpoint(context)
+            new ImplicitEndpoint(app)
         };
 
         Running = true;
