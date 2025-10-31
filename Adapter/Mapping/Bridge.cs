@@ -1,6 +1,5 @@
-﻿using System.Buffers;
-using System.IO.Pipelines;
-using System.Text;
+﻿using System.IO.Pipelines;
+
 using GenHTTP.Adapters.WiredIO.Server;
 using GenHTTP.Adapters.WiredIO.Types;
 using GenHTTP.Adapters.WiredIO.Utils;
@@ -8,10 +7,9 @@ using GenHTTP.Adapters.WiredIO.Utils;
 using GenHTTP.Api.Content;
 using GenHTTP.Api.Infrastructure;
 using GenHTTP.Api.Protocol;
-using GenHTTP.Engine.Shared.Types;
-using Microsoft.Extensions.ObjectPool;
+
 using Wired.IO.Http11Express.Context;
-using StringContent = GenHTTP.Modules.IO.Strings.StringContent;
+
 using WR = Wired.IO.Protocol.Response;
 
 namespace GenHTTP.Adapters.WiredIO.Mapping;
@@ -94,7 +92,6 @@ public static class  Bridge
                 target.Header("Transfer-Encoding", "chunked");
             }
 
-            //target.Type("text/html"u8);
             target.Content(CreateHandler(context.Writer, response.Content), response.ContentLength);
         }
     }
@@ -113,7 +110,6 @@ public static class  Bridge
     {
         if (content.Length == null)
         {
-            //await using var stream = new ChunkedStream(writer.AsStream(leaveOpen: true));
             await using var stream = new ChunkedStream(writer.AsWiredStream());
 
             await content.WriteAsync(stream, BufferSize);
@@ -130,4 +126,5 @@ public static class  Bridge
     
     private static Func<Task> CreateHandler(PipeWriter writer, IResponseContent content) => 
         () => StaticHandler(writer, content);
+    
 }

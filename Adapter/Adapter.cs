@@ -17,8 +17,6 @@ namespace GenHTTP.Adapters.WiredIO;
 public static class Adapter
 {
     
-    private static int _prefixLength;
-    
     public static Builder<WiredHttp11Express, Http11ExpressContext> MapGenHttp(
         this Builder<WiredHttp11Express, Http11ExpressContext> builder, 
         string path,
@@ -33,10 +31,6 @@ public static class Adapter
         IHandler handler, 
         IServerCompanion? companion = null)
     {
-        var pathWithoutWildcard = path.Replace("*", string.Empty);
-        
-        _prefixLength = pathWithoutWildcard.Length;
-        
         // Creates a unique pipeline (middleware + endpoint) that is completely self-sustained and independent
         builder.AddManualPipeline(
             path, // Path for Wired.IO
@@ -48,7 +42,7 @@ public static class Adapter
                     ctx, 
                     handler, 
                     companion: companion, 
-                    registeredPath: pathWithoutWildcard);
+                    registeredPath: path.Replace("*", string.Empty));
             }, 
             // Middlewares, in this case empty as GenHttp already implements this internally (ConcernBuilder)
             []);

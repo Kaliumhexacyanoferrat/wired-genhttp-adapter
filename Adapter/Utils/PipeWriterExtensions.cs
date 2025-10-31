@@ -4,6 +4,8 @@ namespace GenHTTP.Adapters.WiredIO.Utils;
 
 public static class PipeWriterExtensions
 {
+    
     public static WiredStream AsWiredStream(this PipeWriter writer, bool completeOnDispose = false)
-        => new WiredStream(writer, completeOnDispose);
+        => new(writer, completeOnDispose);
+    
 }

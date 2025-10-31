@@ -45,7 +45,8 @@ internal class Program
             .Create()
             .Add("plaintext", Content.From(Resource.FromString("Hello World!")))
             .Add("/api", CreateApi())
-            .Add("files", Listing.From(ResourceTree.FromDirectory("./")));
+            .Add("files", Listing.From(ResourceTree.FromDirectory("./")))
+            .Defaults();
     
     private static InlineBuilder CreateApi() => 
         Inline
