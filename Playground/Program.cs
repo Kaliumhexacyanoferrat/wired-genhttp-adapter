@@ -1,12 +1,14 @@
 ﻿using GenHTTP.Adapters.WiredIO;
-using GenHTTP.Api.Protocol;
+
+using GenHTTP.Modules.ApiBrowsing;
 using GenHTTP.Modules.DirectoryBrowsing;
 using GenHTTP.Modules.Functional;
 using GenHTTP.Modules.Functional.Provider;
 using GenHTTP.Modules.IO;
 using GenHTTP.Modules.Layouting;
 using GenHTTP.Modules.Layouting.Provider;
-using Microsoft.Extensions.DependencyInjection;
+using GenHTTP.Modules.OpenApi;
+
 using Wired.IO.App;
 
 // dotnet publish -c release -r linux-x64 --no-restore --self-contained
@@ -46,6 +48,8 @@ internal class Program
             .Add("plaintext", Content.From(Resource.FromString("Hello World!")))
             .Add("/api", CreateApi())
             .Add("files", Listing.From(ResourceTree.FromDirectory("./")))
+            .AddOpenApi()
+            .AddRedoc()
             .Defaults();
     
     private static InlineBuilder CreateApi() => 

@@ -21,7 +21,7 @@ public static class  Bridge
     public static async Task MapAsync(Http11ExpressContext context, IHandler handler, IServerCompanion? companion = null, string? registeredPath = null)
     {
         // todo: can we cache this somewhere?
-        var server = new ImplicitServer(handler, companion);
+        var server = new ImplicitServer(context, handler, companion);
 
         try
         {

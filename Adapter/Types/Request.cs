@@ -29,7 +29,7 @@ public sealed class Request : IRequest
 
     public IServer Server { get; }
 
-    public IEndPoint EndPoint => throw new InvalidOperationException("EndPoint is not available as it is managed by WiredIO");
+    public IEndPoint EndPoint => Server.EndPoints[0];
 
     public IClientConnection Client { get; }
 
