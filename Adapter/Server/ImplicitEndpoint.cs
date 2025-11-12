@@ -16,6 +16,8 @@ public class ImplicitEndpoint : IEndPoint
 
     public IPAddress? Address { get; }
 
+    public bool DualStack { get; }
+
     public ushort Port { get; }
 
     public bool Secure { get; }
@@ -29,6 +31,7 @@ public class ImplicitEndpoint : IEndPoint
         Address = app.IpAddress;
         Port = (ushort)app.Port;
         Secure = app.TlsEnabled;
+        DualStack = true;
     }
     
     #endregion

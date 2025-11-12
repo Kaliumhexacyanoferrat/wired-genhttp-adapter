@@ -117,7 +117,7 @@ public static class  Bridge
 
             await content.WriteAsync(stream, BufferSize);
 
-            await stream.FinishAsync();
+            stream.Finish();
         }
         else
         {
