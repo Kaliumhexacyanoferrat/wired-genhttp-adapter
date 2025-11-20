@@ -1,6 +1,4 @@
-﻿using Wired.IO.MemoryBuffers;
-
-namespace GenHTTP.Adapters.WiredIO.Utils;
+﻿namespace GenHTTP.Adapters.WiredIO.Utils;
 
 /// <summary>
 /// Implements chunked transfer encoding by letting the client

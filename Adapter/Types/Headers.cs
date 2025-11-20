@@ -1,7 +1,5 @@
 ﻿using System.Collections;
-
 using GenHTTP.Api.Protocol;
-
 using Wired.IO.Http11Express.Request;
 
 namespace GenHTTP.Adapters.WiredIO.Types;
@@ -11,13 +9,13 @@ public sealed class Headers : IHeaderCollection
 
     #region Get-/Setters
 
-    public int Count => Request.Headers.Count;
+    public int Count => Request?.Headers.Count ?? 0;
 
-    public bool ContainsKey(string key) => Request.Headers.ContainsKey(key);
+    public bool ContainsKey(string key) => Request?.Headers.ContainsKey(key) ?? false;
 
     public bool TryGetValue(string key, out string value)
     {
-        if (Request.Headers.TryGetValue(key, out var found))
+        if (Request?.Headers.TryGetValue(key, out var found) ?? false)
         {
             value = found;
             return true;
@@ -27,31 +25,25 @@ public sealed class Headers : IHeaderCollection
         return false;
     }
 
-    public string this[string key] => Request.Headers.GetValueOrDefault(key) ?? string.Empty;
-    
-    public IEnumerable<string> Keys => Request.Headers.Keys;
+    public string this[string key] => Request?.Headers.GetValueOrDefault(key) ?? string.Empty;
+
+    public IEnumerable<string> Keys => Request?.Headers.Keys ?? Enumerable.Empty<string>();
 
     public IEnumerable<string> Values
     {
         get
         {
-            foreach (var entry in Request.Headers)
+            if (Request != null)
             {
-                yield return entry.Value;
+                foreach (var entry in Request.Headers)
+                {
+                    yield return entry.Value;
+                }
             }
         }
     }
 
-    private IExpressRequest Request { get; }
-
-    #endregion
-
-    #region Initialization
-
-    public Headers(IExpressRequest request)
-    {
-        Request = request;
-    }
+    private IExpressRequest? Request { get; set; }
 
     #endregion
 
@@ -59,21 +51,20 @@ public sealed class Headers : IHeaderCollection
 
     public IEnumerator<KeyValuePair<string, string>> GetEnumerator()
     {
-        foreach (var entry in Request.Headers)
+        if (Request != null)
         {
-            yield return new(entry.Key, entry.Value);
+            foreach (var entry in Request.Headers)
+            {
+                yield return new(entry.Key, entry.Value);
+            }
         }
     }
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    #endregion
-
-    #region Lifecycle
-
-    public void Dispose()
+    internal void SetRequest(IExpressRequest? request)
     {
-
+        Request = request;
     }
 
     #endregion

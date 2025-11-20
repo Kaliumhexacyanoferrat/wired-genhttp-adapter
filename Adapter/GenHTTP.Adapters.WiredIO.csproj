@@ -9,9 +9,9 @@
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
         <ImplicitUsings>enable</ImplicitUsings>
 
-        <AssemblyVersion>10.0.0</AssemblyVersion>
-        <FileVersion>10.0.0</FileVersion>
-        <Version>10.0.0</Version>
+        <AssemblyVersion>10.1.0</AssemblyVersion>
+        <FileVersion>10.1.0</FileVersion>
+        <Version>10.1.0</Version>
 
         <Description>Adapter to run GenHTTP handlers within an Wired.IO app.</Description>
         <PackageTags>Wired.IO Adapter GenHTTP</PackageTags>
@@ -35,19 +35,19 @@
 
     <ItemGroup>
 
-        <PackageReference Include="Wired.IO" Version="9.5.11" />
+        <PackageReference Include="Wired.IO" Version="10.0.0" />
 
-        <PackageReference Include="GenHTTP.Api" Version="10.0.*" />
+        <PackageReference Include="GenHTTP.Api" Version="10.1.0" />
 
-        <PackageReference Include="GenHTTP.Modules.IO" Version="10.0.*" />
+        <PackageReference Include="GenHTTP.Modules.IO" Version="10.1.0" />
 
-        <PackageReference Include="GenHTTP.Modules.ErrorHandling" Version="10.0.*" />
+        <PackageReference Include="GenHTTP.Modules.ErrorHandling" Version="10.1.0" />
 
-        <PackageReference Include="GenHTTP.Modules.ClientCaching" Version="10.0.*" />
+        <PackageReference Include="GenHTTP.Modules.ClientCaching" Version="10.1.0" />
 
-        <PackageReference Include="GenHTTP.Modules.Compression" Version="10.0.*" />
+        <PackageReference Include="GenHTTP.Modules.Compression" Version="10.1.0" />
 
-        <PackageReference Include="GenHTTP.Engine.Shared" Version="10.0.*" />
+        <PackageReference Include="GenHTTP.Engine.Shared" Version="10.1.0" />
 
     </ItemGroup>
 

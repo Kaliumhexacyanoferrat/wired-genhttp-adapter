@@ -1,6 +1,8 @@
 ﻿using System.Collections.Concurrent;
 using System.IO.Pipelines;
 
+using Microsoft.Extensions.ObjectPool;
+
 using GenHTTP.Adapters.WiredIO.Server;
 using GenHTTP.Adapters.WiredIO.Types;
 using GenHTTP.Adapters.WiredIO.Utils;
@@ -20,21 +22,27 @@ public static class  Bridge
 {
     private const int BufferSize = 8192;
 
+    private static readonly DefaultObjectPool<ClientContext> ContextPool = new(new ClientContextPolicy(), 65536);
+
     private static readonly ConcurrentDictionary<string, ImplicitServer> ServerCache = [];
-    
+
     public static async Task MapAsync(WiredApp<Http11ExpressContext> app, Http11ExpressContext context, IHandler handler, IServerCompanion? companion = null, string? registeredPath = null)
     {
-        var server =ServerCache.GetOrAdd(registeredPath ?? "/", key => new ImplicitServer(app, handler, companion));
+        var server = ServerCache.GetOrAdd(registeredPath ?? "/", key => new ImplicitServer(app, handler, companion));
+
+        var clientContext = ContextPool.Get();
 
         try
         {
-            using var request = new Request(server, context.Request);
+            var request = clientContext.Request;
+
+            request.SetRequest(server, context.Request);
 
             if (!string.IsNullOrEmpty(registeredPath))
             {
                 AdvanceTo(request, registeredPath);
             }
-            
+
             using var response = await handler.HandleAsync(request);
 
             if (response != null)
@@ -50,12 +58,16 @@ public static class  Bridge
             server.Companion?.OnServerError(ServerErrorScope.ServerConnection, null, e);
             throw;
         }
+        finally
+        {
+            ContextPool.Return(clientContext);
+        }
     }
 
     private static void MapResponse(IResponse response, Http11ExpressContext context)
     {
         var target = context.Respond();
-        
+
         target.Status((WR.ResponseStatus)response.Status.RawStatus);
 
         foreach (var header in response.Headers)
@@ -108,7 +120,7 @@ public static class  Bridge
             request.Target.Advance();
         }
     }
-    
+
     private static readonly Func<PipeWriter, IResponseContent, Task> StaticHandler =  async (writer, content) =>
     {
         if (content.Length == null)
@@ -122,12 +134,12 @@ public static class  Bridge
         else
         {
             await using var stream = writer.AsWiredStream();
-            
+
             await content.WriteAsync(stream, BufferSize);
         }
     };
-    
-    private static Func<Task> CreateHandler(PipeWriter writer, IResponseContent content) => 
+
+    private static Func<Task> CreateHandler(PipeWriter writer, IResponseContent content) =>
         () => StaticHandler(writer, content);
-    
+
 }

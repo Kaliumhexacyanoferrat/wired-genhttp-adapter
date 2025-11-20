@@ -26,10 +26,10 @@
     
     <ItemGroup>
         <ProjectReference Include="..\Adapter\GenHTTP.Adapters.WiredIO.csproj"/>
-        <PackageReference Include="GenHTTP.Modules.Functional" Version="10.0.*" />
-        <PackageReference Include="GenHTTP.Modules.DirectoryBrowsing" Version="10.0.*" />
-        <PackageReference Include="GenHTTP.Modules.OpenApi" Version="10.0.*" />
-        <PackageReference Include="GenHTTP.Modules.ApiBrowsing" Version="10.0.*" />
+        <PackageReference Include="GenHTTP.Modules.Functional" Version="10.1.0" />
+        <PackageReference Include="GenHTTP.Modules.DirectoryBrowsing" Version="10.1.0" />
+        <PackageReference Include="GenHTTP.Modules.OpenApi" Version="10.1.0" />
+        <PackageReference Include="GenHTTP.Modules.ApiBrowsing" Version="10.1.0" />
     </ItemGroup>
 
 </Project>
