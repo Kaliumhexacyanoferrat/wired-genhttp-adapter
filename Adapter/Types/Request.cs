@@ -17,7 +17,7 @@ public sealed class Request : IRequest
     private IServer? _server;
 
     private IClientConnection? _client;
-    private IClientConnection? _localCLient;
+    private IClientConnection? _localClient;
 
     private FlexibleRequestMethod? _method;
     private RoutingTarget? _target;
@@ -42,7 +42,7 @@ public sealed class Request : IRequest
 
     public IClientConnection Client => _client ?? throw new InvalidOperationException("Request is not initialized yet");
 
-    public IClientConnection LocalClient => _localCLient ?? throw new InvalidOperationException("Request is not initialized yet");
+    public IClientConnection LocalClient => _localClient ?? throw new InvalidOperationException("Request is not initialized yet");
 
     public HttpProtocol ProtocolType { get; private set; }
 
@@ -149,7 +149,7 @@ public sealed class Request : IRequest
             _forwardings.TryAddLegacy(Headers);
         }
 
-        _localCLient = new ClientConnection(request);
+        _localClient = new ClientConnection(request);
 
         // todo: potential client certificate is not exposed by wired
         // Taveira: wired has a SslServerAuthenticationOptions property
@@ -169,10 +169,16 @@ public sealed class Request : IRequest
         _headers.SetRequest(null);
         _query.SetRequest(null);
 
+        _forwardings.Clear();
+        _cookies.Clear();
+        _properties.Clear();
+        
         _server = null;
         _client = null;
-        _localCLient = null;
+        _localClient = null;
         _method = null;
+
+        _freshResponse = true;
     }
 
     #endregion
